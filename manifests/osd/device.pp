@@ -51,14 +51,14 @@ define ceph::osd::device (
 
   if $osd_journal_type == 'first_partition' {
     exec { "mkpart_journal_${devname}":
-         command => "parted -a optimal -s ${name} mkpart ceph_journal 0GiB ${osd_journal_size}GiB",
-         unless  => "parted ${name} print | egrep '^ 1.*ceph_journal$'",
-         require => [Package['parted'], Exec["mktable_gpt_${devname}"]]
+      command => "parted -a optimal -s ${name} mkpart ceph_journal 0GiB ${osd_journal_size}GiB",
+      unless  => "parted ${name} print --script | egrep '^ 1.*ceph_journal$'",
+      require => [Package['parted'], Exec["mktable_gpt_${devname}"]]
     }
     exec { "mkpart_${devname}":
-    	command => "parted -a optimal -s ${name} mkpart ceph ${osd_journal_size}GiB 100%",
-    	unless  => "parted ${name} print | egrep '^ 2.*ceph$'",
-    	require => [Package['parted'], Exec["mktable_gpt_${devname}"], Exec["mkpart_journal_${devname}"]]
+      command => "parted -a optimal -s ${name} mkpart ceph ${osd_journal_size}GiB 100%",
+      unless  => "parted ${name} print --script | egrep '^ 2.*ceph$'",
+      require => [Package['parted'], Exec["mktable_gpt_${devname}"], Exec["mkpart_journal_${devname}"]]
     }
 
     exec { "partprobe_${devname}":
@@ -80,9 +80,9 @@ size=1024m -n size=64k ${part_prefix}2",
   } elsif $osd_journal_type == 'filesystem' {
 
     exec { "mkpart_${devname}":
-    	command => "parted -a optimal -s ${name} mkpart ceph 0% 100%",
-    	unless  => "parted ${name} print | egrep '^ 1.*ceph$'",
-    	require => [Package['parted'], Exec["mktable_gpt_${devname}"]]
+      command => "parted -a optimal -s ${name} mkpart ceph 0% 100%",
+      unless  => "parted ${name} print --script | egrep '^ 1.*ceph$'",
+      require => [Package['parted'], Exec["mktable_gpt_${devname}"]]
     }
 
     exec { "partprobe_${devname}":

@@ -35,7 +35,7 @@ class { 'ceph::osd':
 
     it { should contain_exec('mkpart_device').with(
       'command' => 'parted -a optimal -s /dev/device mkpart ceph 0% 100%',
-      'unless'  => "parted /dev/device print | egrep '^ 1.*ceph$'",
+      'unless'  => "parted /dev/device print --script | egrep '^ 1.*ceph$'",
       'require' => ['Package[parted]', 'Exec[mktable_gpt_device]']
     ) }
 
